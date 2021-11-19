@@ -1,0 +1,39 @@
+' {$STAMP BS2P}
+' {$PBASIC 2.5}
+' {$PORT COM4}
+'eeeee
+
+SData PIN 8 'Serial data transfer channel
+SCLK PIN 9· 'Clock Channel
+FSYNC PIN 6 'FSYNC channel
+
+OUTPUT SData· 'Set variables as outputs on the proto-board
+OUTPUT SCLK
+OUTPUT FSYNC
+
+
+'Declare the word variables
+ControlReg VAR Word 'ControlReg is used to initialize the DDS circuitry
+FREQ0L VAR Word···· 'FREQ0L is the 14 LSB of the FREQ0 register
+FREQ0M VAR Word···· 'FREQ0M is the 14 MSB of the FREQ0 register
+FREQ1L VAR Word···· 'FREQ1L is the 14 LSB of the FREQ1 register
+FREQ1M VAR Word···· 'FREQ1M is the 14 MSB of the FREQ1 register
+PHASE0 VAR Word···· 'PHASE0 and PHASE 1 registers, these can be written to if you set the first two bits of the control register to '11'
+PHASE1 VAR Word
+Contr_term VAR Word
+
+'Give the variables a value
+ControlReg = $2000· 'Initialize DDS circuitry,make the frequency register operate as two 14-bit registers,Set the reset bit high
+FREQ00 = $4000····· 'Set the Control bits to write the the FREQ0 Register, and write first 14-bits of data
+FREQ01 = $403F····· 'Send another word to send the remaining 14-bits of data to the FREQ0 Register
+FREQ10 = $8000····· 'Select the FREQ1 Register and send all zeros
+FREQ11 = $8000····· 'Select the FREQ1 Register and send all zeros
+PHASE0 = $C000····· 'Select the PHASE0 Register and send nothing
+PHASE1 = $E000····· 'Select the PHASE1 Register and send nothing
+ConTerm = $0200···· 'Send a concluding word variable to set the register to 0
+
+
+'Set FSYNC low, send data, and set FSYNC high to end transmission
+LOW FSYNC
+SHIFTOUT SData,SCLK,LSBFIRST,[noparse][[/noparse]ControlReg,FREQ00,FREQ01,FREQ10,FREQ11,PHASE0,PHASE1,Contterm]
+HIGH FSYNC

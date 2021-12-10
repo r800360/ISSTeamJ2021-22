@@ -1,39 +1,77 @@
 ' {$STAMP BS2P}
+
 ' {$PBASIC 2.5}
-' {$PORT COM4}
+
+' {$PORT COM7}
+
 'eeeee
 
-SData PIN 8 'Serial data transfer channel
-SCLK PIN 9 'Clock Channel
-FSYNC PIN 6 'FSYNC channel
 
-OUTPUT SData 'Set variables as outputs on the proto-board
-OUTPUT SCLK
-OUTPUT FSYNC
 
+version  CON 1602
+
+InternI2c CON 0
+
+PCF8574address CON $40
+
+
+
+SData CON 8
+
+SCLK CON 9
 
 'Declare the word variables
+
 ControlReg VAR Word 'ControlReg is used to initialize the DDS circuitry
-FREQ0L VAR Word 'FREQ0L is the 14 LSB of the FREQ0 register
-FREQ0M VAR Word'FREQ0M is the 14 MSB of the FREQ0 register
-FREQ1L VAR Word 'FREQ1L is the 14 LSB of the FREQ1 register
-FREQ1M VAR Word 'FREQ1M is the 14 MSB of the FREQ1 register
+
+FREQ00 VAR Word 'FREQ0L is the 14 LSB of the FREQ0 register
+
+FREQ01 VAR Word'FREQ0M is the 14 MSB of the FREQ0 register
+
+FREQ10 VAR Word 'FREQ1L is the 14 LSB of the FREQ1 register
+
+FREQ11 VAR Word 'FREQ1M is the 14 MSB of the FREQ1 register
+
 PHASE0 VAR Word 'PHASE0 and PHASE 1 registers, these can be written to if you set the first two bits of the control register to '11'
+
 PHASE1 VAR Word
-Contr_term VAR Word
+
+ConTerm VAR Word
+
+
 
 'Give the variables a value
+
 ControlReg = $2000 'Initialize DDS circuitry,make the frequency register operate as two 14-bit registers,Set the reset bit high
+
 FREQ00 = $4000 'Set the Control bits to write the the FREQ0 Register, and write first 14-bits of data
+
 FREQ01 = $403F 'Send another word to send the remaining 14-bits of data to the FREQ0 Register
+
 FREQ10 = $8000 'Select the FREQ1 Register and send all zeros
+
 FREQ11 = $8000 'Select the FREQ1 Register and send all zeros
+
 PHASE0 = $C000 'Select the PHASE0 Register and send nothing
+
 PHASE1 = $E000 'Select the PHASE1 Register and send nothing
+
 ConTerm = $0200 'Send a concluding word variable to set the register to 0
 
 
+
+DEBUG "Hello World"
+
 'Set FSYNC low, send data, and set FSYNC high to end transmission
-LOW FSYNC
-SHIFTOUT SData,SCLK,LSBFIRST,[noparse][[/noparse]ControlReg,FREQ00,FREQ01,FREQ10,FREQ11,PHASE0,PHASE1,Contterm]
-HIGH FSYNC
+
+I2COUT InternI2C, PCF8574address, [%01111110]
+
+'SHIFTOUT SData,SCLK,LSBFIRST,[ConTerm,ControlReg,FREQ00,FREQ01,FREQ10,FREQ11,PHASE0,PHASE1,ConTerm]
+
+SHIFTOUT SData,SCLK,LSBFIRST,[%00100000,%00000000, %00100001,%00000000,%01101001,%11110010,%01000000,%00000000,%11000000,%00000000,%00100000,%00000000]
+
+I2COUT InternI2C, PCF8574address, [%10111101]
+
+SHIFTOUT SData,SCLK,LSBFIRST,[%00100000,%00000000, %00100001,%00000000,%01101001,%11110010,%01000000,%00000000,%11000000,%00000000,%00100000,%00000000]
+
+I2COUT InternI2C, PCF8574address, [%11111111]

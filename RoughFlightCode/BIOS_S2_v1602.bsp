@@ -1,6 +1,6 @@
 ' {$STAMP BS2P}
 ' {$PBASIC 2.5}
-' {$PORT COM5}
+' {$PORT COM7}
 
 
 version  CON 1602
@@ -417,8 +417,8 @@ FoundEvent:
   STORE DataStorage
   BRANCH UserVar3,[Event0,    'Event 0 (do nothing)
   Event1,                     'Event 1 (
-  event2,                     'Event 2 (
-  event3,                     'Event 3 (
+  Event2,                     'Event 2 (
+  Event3,                     'Event 3 (
   Event4]                     'Event 4 (
 
   UserVar3 = 0                 'Error
@@ -447,27 +447,67 @@ Event1: DEBUG CR,"TP",CR
 TakePhotoReturn:
          'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
          '
-         I2COUT InternI2C, PCF8574address, [%11100111] 'Jct P to N (IO5 power, IO6 ground), IO3 (fan)
+         'I2COUT InternI2C, PCF8574address, [%11100111] 'Jct P to N (IO5 power, IO6 ground), IO3 (fan)
          ' Values in return back are lost when jumping to Slot 6
          tempReg0 = 4 'Destination Index (EventTableReturn)
          RUN 0        'Destination Slot
 
-Event2: 'DEBUG CR,"WT" ,CR
-        DEBUG CR,"Sending output",CR
+Event2: DEBUG CR,"WT" ,CR
+        'DEBUG CR,"Sending output",CR
         'Set FSYNC low, send data, and set FSYNC high to end transmission
-        I2COUT InternI2C, PCF8574address, [%01100110]
-        'SHIFTOUT SData,SCLK,LSBFIRST,[ConTerm,ControlReg,FREQ00,FREQ01,FREQ10,FREQ11,PHASE0,PHASE1,ConTerm]
-        SHIFTOUT SData,SCLK,LSBFIRST,[%00100000,%00000000, %00100001,%00000000,%01101001,%11110010,%01000000,%00000000,%11000000,%00000000,%00100000,%00000000]
-        I2COUT InternI2C, PCF8574address, [%10100101]
-        SHIFTOUT SData,SCLK,LSBFIRST,[%00100000,%00000000, %00100001,%00000000,%01010000,%11000111,%01000000,%00000000,%11000000,%00000000,%00100000,%00000000]
-        I2COUT InternI2C, PCF8574address, [%11100111]
-        GOTO Event2
+     I2COUT InternI2C, PCF8574address, [%01111110]
+     'SHIFTOUT SData,SCLK,LSBFIRST,[ConTerm,ControlReg,FREQ00,FREQ01,FREQ10,FREQ11,PHASE0,PHASE1,ConTerm]
+     'SHIFTOUT 8, 9,MSBFIRST,[%00100000,%00000000, %00100001,%00000000,%01010000,%11000111,%01000000,%00000000,%11000000,%00000000,%00100000,%00000000]
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110111100001010\14,%0000000000000010\14,%0000000000000011\12]
+     I2COUT InternI2C, PCF8574address, [%10111101]
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110001100001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110001100001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110000000001010\14,%0000011000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110000000001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110001100001010\14,%0000011000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110001000001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110000100001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%0000000000001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1110011100001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111100001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111110001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111111001010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111111101010\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111111111110\14,%0000000000000010\14,%0000000000000011\12]
+     PAUSE 100
+     SHIFTOUT 8,9,MSBFIRST,[%0000000010000100\16,%1111111111111110\14,%0000000000000010\14,%0000000000000011\12]
+     I2COUT InternI2C, PCF8574address, [%11111111]
+     tempReg0 = 4
+     RUN 0
 
-Event3: DEBUG CR,"LE" ,CR
+Event3:
+       DEBUG CR,"OF", CR
+       I2COUT InternI2C, PCF8574address, [%01111110]
+       'SHIFTOUT left off here
+       I2COUT InternI2C, PCF8574address, [%10111110]
+       'SHIFTOUT right off here
+       I2COUT InternI2C, PCF8574address, [%11111111]
+       tempReg0 = 4
+       RUN 0
+
+Event4: DEBUG CR,"LE" ,CR
         STORE 0
-        WRITE DurDay, 01: WRITE DurHour, 00: WRITE DurMin, 00               '      '
+        WRITE DurDay, 00: WRITE DurHour, 23: WRITE DurMin, 49               '      '
         STORE 2
-        FOR tempReg0 = 0 TO 8
+        FOR tempReg0 = 0 TO 6
           WRITE ETable+tempReg0*5+3, $FF   'Tag Event, increment tag count
         NEXT
         STORE DataStorage              '
@@ -502,9 +542,6 @@ P3vector:
         DATA  00,  23,   50,   $FF,     01   'Row 1 - Take Photo
         DATA  00,  23,   54,   $FF,     01   'Row 2 - Take Photo
         DATA  00,  23,   58,   $FF,     01   'Row 3 - Take Photo
-        DATA  01,  00,   01,   $FF,     02   'Row 4 - Run Speaker on Infinite Loop
-        DATA  01,  00,   21,   $FF,     00   'Row 5 - Do Nothing to align with Watchdog Hardware Reset
-        DATA  01,  00,   41,   $FF,     01   'Row 6 - Take Photo
-        DATA  01,  00,   45,   $FF,     01   'Row 7 - Take Photo
-        DATA  01,  00,   49,   $FF,     01   'Row 8 - Take Photo
-        DATA  01,  00,   50,   $FF,     03   'Row 9 - Write to 01:00:00 to go back to speaker event
+        DATA  01,  00,   01,   $FF,     02   'Row 4 - Run Speaker
+        DATA  01,  00,   21,   $FF,     00   'Row 5 - Turn off speaker w/o adjusting mode of operation
+        DATA  01,  00,   41,   $FF,     03   'Row 6 - Go back to Row 1

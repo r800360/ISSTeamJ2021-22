@@ -45,8 +45,8 @@ version  CON 1602
 DataStorage    CON 4                'EEROM data is storaged in Slot 4
 '
 '
-'Data storage is defined at the end of this slot (slot 4), th`e spaces AND address must match up with
-'the lablES defined here which will be used across all slots, be careful in defining this
+'Data storage is defined at the end of this slot (slot 4), the spaces and address must match up with
+'the lables defined here which will be used across all slots, be careful in defining this
 '
 Cstatus             CON 0                    '00 See data at data storage area
 TestNumber          CON Cstatus+1            'Test Sequence Counter  1112
